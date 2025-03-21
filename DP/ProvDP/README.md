@@ -7,7 +7,7 @@ provenance graphs.
 
 ### src.algorithm
 This package contains the core logic of the project.
-- [graph_processor.py](src/algorithm/graph_processor.py) is responsible for loading files, pruning trees, and then reattaching the pruned trees according to differential privacy. The core of the differential privacy pipeline is called in `perturb_graphs()` function.
+- [`graph_processor.py`](src/algorithm/graph_processor.py) is responsible for loading files, pruning trees, and then reattaching the pruned trees according to differential privacy. The core of the differential privacy pipeline is called in [`perturb_graphs()`](DP/ProvDP/src/cli/perturb.py) function.
 
 ### src.algorithm.wrappers
 - [`edge.py`](src/algorithm/wrappers/edge.py), [`node.py`](src/algorithm/wrappers/node.py) contains simple wrappers for [`raw_edge.py`](src/graphson/raw_edge.py) and [`raw_node.py`](src/graphson/raw_node.py), respectively.

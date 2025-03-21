@@ -90,6 +90,7 @@ class Edge:
     def to_json_dict(self) -> dict:
         model = self.edge.model_dump(by_alias=True)
         json_dict = {}
+        NOT_FOUND_EDGE = []
         for attribute, value in model.items():
             if attribute not in self.__json_attributes and not attribute.startswith("_"):
                 NOT_FOUND_EDGE.add(attribute)

@@ -37,7 +37,6 @@ class HeteroRGATLayer(nn.Module):
         rel_func_dict = {}
 
         for relation in graph.canonical_etypes:
-            # zero edges of this relation? we move onto next relation
             if not graph.num_edges(relation):
                 continue
 

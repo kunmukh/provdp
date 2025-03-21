@@ -237,8 +237,6 @@ class GraphProcessor:
                 continue
             visited_node_ids.add(src_node_id)
 
-            # Dr. De: more metrics to consider: height/level at which a node is sitting (distance from leaf).
-            #         can we use this along with the size to get a better result?
             # calculate the probability of pruning a given tree
             node_stats = tree.get_node_stats(src_node_id)
             subtree_size, height, depth, degree = (

@@ -8,15 +8,11 @@ __pycache__/
 *.pdf
 *.zip
 *.bin
+*.pickle
 *.pkl
 *.DS_STORE
+*.pyc
 
 # ProvNinja Intermediatory
-csv/*
-logs/*
-models/*
-runs/*
-images/*
-GNN-based-IDS/ProvNinja/logs/*
-GNN-based-IDS/ProvNinja/models/*
+GNN-based-IDS/ProvNinja/images/*
 GNN-based-IDS/ProvNinja/runs/*

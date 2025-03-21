@@ -194,7 +194,7 @@ class Tree(Graph):
                 continue
             assert len(self.get_outgoing_edge_ids(node.get_id())) == 0
 
-    # The graph is now a directed acyclic graph - Dr. De
+    # The graph is now a directed acyclic graph
     # Step 4. Remove lattice structure: Duplicate file/IP nodes for each incoming edge
     def __duplicate_file_ip_leaves(self) -> None:
         nodes = self.get_nodes().copy()

@@ -486,6 +486,91 @@ def train_binary_graph_classification(model,
         len(train_dataset) + len(validation_dataset) + len(test_dataset))
 
 
+def evaluate_binary_graph_classification(
+    model,
+    summaryWriter,
+    test_dataset,
+    logger,
+    batch_size=DEFAULT_BATCH_SIZE,
+    feature_aggregation_func=None,
+    device=None,
+    benign_downsampling_training=None,
+    anomaly_threshold=None,
+):
+
+
+    logger.info(f"Evaluating on Device: {device}")
+    logger.info(f"# Parameters in model: {getTotalParams(model)}")
+    logger.info(f"# Trainable parameters in model: {getTotalTrainableParams(model)}")
+
+    model.to(device)
+
+    logger.info(f"Stratified sampler enabled")
+
+    test_batch_sampler = StratifiedBatchSampler(
+        test_dataset.labels, batch_size=batch_size, shuffle=False
+    )
+
+    test_dataloader = GraphDataLoader(
+        test_dataset,
+        collate_fn=collate_func,
+        num_workers=DEFAULT_NUM_WORKERS,
+        batch_sampler=test_batch_sampler,
+    )
+
+    test_num_correct = 0
+    test_y_pred = []
+    test_y_true = []
+    anomaly_prob = []
+    test_incorrect_graphs = [] if benign_downsampling_training else None
+    
+    for batched_graphs, batched_labels in test_dataloader:
+        batched_graphs = batched_graphs.to(device)
+        batched_labels = batched_labels.to(device)
+
+        pred = model(batched_graphs, feature_aggregation_func(batched_graphs))
+        
+        if anomaly_threshold:
+            pred = (pred > anomaly_threshold).float()
+        else:
+            anomaly_prob.append(pred[batched_labels.long() == 1].view(-1).tolist())
+            pred = th.round(pred)
+
+        pred = th.reshape(pred, (pred.shape[0],))
+
+        num_correct = (pred == batched_labels).sum().item()
+        test_num_correct += num_correct
+
+        if num_correct == 0:
+            test_incorrect_graphs.append(
+                (
+                    batched_graphs.folder_name,
+                    f"misclassified as {'benign' if batched_labels[0].item() else 'anomaly'}",
+                )
+            )
+
+        test_y_pred = test_y_pred + pred.tolist()
+        test_y_true = test_y_true + batched_labels.tolist()
+
+    if not anomaly_threshold:
+        saveProbabilityDistibution(
+            [round(val, 2) for vals in anomaly_prob for val in vals]
+        )
+
+    outputStats(
+        "test",
+        test_num_correct,
+        len(test_dataset),
+        test_y_pred,
+        test_y_true,
+        ["Benign", "Anomaly"],
+        logger,
+        incorrect_graphs=test_incorrect_graphs,
+    )
+    outputTestStatsToSummaryWriter(
+        summaryWriter, test_num_correct, len(test_dataset), len(test_dataset)
+    )
+    
 # Based upon dgl.dataloading.GraphCollator.collate
 # used for dataloader collation & to inject folder name into a batched graph
 def collate_func(items):
